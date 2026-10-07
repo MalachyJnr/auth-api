@@ -157,6 +157,34 @@ const createRefreshToken = async (userId) => {
   return token;
 };
 
+const findRefreshToken = async (token) => {
+  const tokenHash = hashRefreshToken(token);
+
+  const result = await pool.query(
+    `SELECT
+    id, user_id,
+    expires_at, revoked_at
+    FROM refresh_tokens
+    WHERE token_hash = $1`,
+    [tokenHash],
+  );
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  const refreshToken = result.rows[0];
+
+  if (refreshToken.revoked_at) {
+    return null;
+  }
+
+  if (new Date(refreshToken.expires_at) <= new Date()) {
+    return null;
+  }
+
+  return refreshToken;
+};
 //
 
-module.exports = { registerUser, loginUser, createRefreshToken };
+module.exports = { registerUser, loginUser, createRefreshToken, findRefreshToken };

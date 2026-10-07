@@ -25,7 +25,7 @@ const setRefreshTokenCookie = (res, token) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/api/auth",
   });
-};
+};  
 
 
 module.exports = {
